@@ -68,14 +68,17 @@ async function load(params) {
                     pool[POOL.ADDRESS] = pools_ok[j].address.toLowerCase()
                     pool[POOL.TOKEN0] = token0_result.result.toLowerCase()
                     pool[POOL.TOKEN1] = token1_result.result.toLowerCase()
-                    
+
                     console.log(pool.join(','))
                 } else {
                     retry_missed.push(pools_ok[j].id)
                 }
             }
-        } catch (error) {
-            console.error(error.message)
+        } catch (_) {
+            chunk.forEach(id => {
+                if (retry_missed.includes(id)) return
+                retry_missed.push(id)
+            })
         }
     }
     
@@ -88,7 +91,7 @@ async function load(params) {
 const jobs_data_filename = process.argv[2]
 const job_index = +process.argv[3]
 
-if (isNaN(job_index)) console.error('Required pass an index of job via argument') || process.exit(1)
+if (isNaN(job_index)) process.exit(1)
 
 const jobs_data = JSON.parse(fs.readFileSync(jobs_data_filename, 'utf8'))
 jobs_data.missed = jobs_data.missed[job_index]
@@ -98,4 +101,4 @@ const client = createPublicClient({
     transport: http(`https://eth-mainnet.g.alchemy.com/v2/${jobs_data.key}`)
 })
 
-load({client, ...jobs_data, chunk_size: 50})
+load({client, ...jobs_data})

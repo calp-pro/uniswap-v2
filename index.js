@@ -13,7 +13,7 @@ const client = createPublicClient({
 })
 
 const load = params => {
-    const {filename, to} = params
+    const {filename, to, chunk_size = 50} = params
     const pairs_ids = filename && fs.existsSync(filename)
         ? fs.readFileSync(filename).toString().trim().split('\n')
             .map(line => +line.split(',')[0])
@@ -37,13 +37,15 @@ const load = params => {
         
         for (var i = start_from, rr = 0; i < allPairsLength; i++) {
             missed[rr].push(i)
-            rr = (rr + 1) % workers
+            if (missed[rr].length % chunk_size == 0)
+                rr = (rr + 1) % workers
         }
-                
+        
         const jobs_data_filename = `jobs_data_${Date.now()}.json`
         fs.writeFileSync(jobs_data_filename, JSON.stringify({
             missed,
             factory,
+            chunk_size,
             key
         }), 'utf8')
         
@@ -52,16 +54,21 @@ const load = params => {
             .filter(_ => _.length)
             .map((_, i) => new Promise(y => {
                 const loader = spawn('node', ['loader.js', jobs_data_filename, i.toString()])
-                loader.stdout.on('data', line => {
-                    line = line.toString()
-                    const data = line.trim().split(',')
-                    const id = data[0]
-                    pairs[id] = {
-                        id,
-                        pair: data[1],
-                        token0: data[2],
-                        token1: data[3]
-                    }
+                loader.stdout.on('data', data => {
+                    data += data.toString()
+                    if (!data.includes('\n')) return
+                    const lines = data.split('\n')
+                    data = lines.shift()
+                    lines.forEach(line => {
+                        const a = line.split(',')
+                        const id = +a[0]
+                        pairs[id] = {
+                            id,
+                            pair: a[1],
+                            token0: a[2],
+                            token1: a[3]
+                        }
+                    })
                     if (filename) {
                         var pair
                         while (pair = pairs[next_pair_order]) {
