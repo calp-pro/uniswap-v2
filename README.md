@@ -7,12 +7,26 @@ The package uses Alchemy. Set your key as an environment variable (a default key
 `export KEY=your_alchemy_key`
 
 ## API Reference
-### `all()`
-- **Description**: Fetches all token pairs from the Uniswap v2 factory. It utilizes multicall from `viem` and splits the loading process between multiple CPUs for high-speed execution.
-- **Returns**: `Promise<Array<Object>>`
+### `all(params)`
+- **Description**: Fetches token pairs from the Uniswap v2 factory. It utilizes multicall from `viem` and splits the loading process between multiple CPUs for high-speed execution.
+- **Arguments**:
+    - `params`: (Object)
+        - `from`: (number) Start loading from this index (default 0).
+        - `to`: (number) Load up to this index.
+        - `filename`: (string) Path to cache CSV file.
+        - `chunk_size`: (number) Items per multicall (default 50).
+- **Returns**: `Promise<Array<Object>>` (Array of Pair Objects)
 
-### Output Format
-The function returns a `Promise` resolving to an array of objects with the following fields:
+### `onupdate(callback, params)`
+- **Description**: Subscribes to new pairs appearing at the factory contract. It initially calls the callback with cached pairs and then polls for updates.
+- **Arguments**:
+    - `callback`: (function) Called with an array of Pair Objects.
+    - `params`: (Object) Same as `all()` plus:
+        - `update_timeout`: (number) Polling interval in ms (default 5000).
+- **Returns**: `Function` An unsubscribe function to stop polling.
+
+### Pair Object
+The pair object contains the following fields:
 - `id`: (number) The pair index.
 - `pair`: (string) The pair contract address.
 - `token0`: (string) The address of the first token in the pair.
@@ -20,11 +34,18 @@ The function returns a `Promise` resolving to an array of objects with the follo
 
 ## Usage
 ```javascript
-const { all } = require('uniswap-v2-loader')
+const { all, onupdate } = require('uniswap-v2-loader')
 
-all().then(pairs => 
-    pairs.forEach(({id, pair, token0, token1}) => 
-        console.log(`ID: ${id} | Pair: ${pair} | Tokens: ${token0}, ${token1}`)
-    )
+// Load initial set
+all({to: 10}).then(pairs =>
+    pairs.forEach(({id, pair}) => console.log(`ID: ${id} | Pair: ${pair}`))
 )
+
+// Subscribe to new pairs (24/7 monitoring)
+const unsubscribe = onupdate(pairs => {
+    console.log(`Pools count: ${pairs.length}`)
+})
+
+// Stop monitoring if needed
+// unsubscribe()
 ```

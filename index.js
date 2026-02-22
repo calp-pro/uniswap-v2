@@ -1,8 +1,26 @@
 const { spawn } = require('child_process')
-const os = require('os')
 const fs = require('fs')
+const os = require('os')
+const path = require('path')
+const env = process.env
+const home = os.homedir()
+const pkg = require('./package.json')
+const default_filename = path.join(
+  ...(process.platform === 'win32'
+      ? (env.LOCALAPPDATA || env.APPDATA)
+        ? [env.LOCALAPPDATA || env.APPDATA]
+        : [home, 'AppData', 'Local']
+      : process.platform === 'darwin'
+        ? [home, 'Library', 'Caches']
+        : (env.XDG_CACHE_HOME && path.isAbsolute(env.XDG_CACHE_HOME))
+          ? [env.XDG_CACHE_HOME]
+          : [home, '.cache']
+  ),
+  pkg.name + '_pairs.csv'
+)
 const { parseAbiItem, createPublicClient, http } = require('viem')
 const { mainnet } = require('viem/chains')
+
 const workers = os.cpus().length - 1
 const missed = Array(workers).fill(null).map(() => [])
 const key = process.env.KEY || 'FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu'
@@ -13,11 +31,23 @@ const client = createPublicClient({
 })
 
 const load = params => {
-    const {filename, to, chunk_size = 50} = params
-    const pairs_ids = filename && fs.existsSync(filename)
+    const {filename = default_filename, to, from = 0, chunk_size = 50} = params
+    const pairs = params.pairs || fs.existsSync(filename)
         ? fs.readFileSync(filename).toString().trim().split('\n')
-            .map(line => +line.split(',')[0])
+            .reduce((pairs, line) => {
+                line = line.split(',')
+                const id = +line[0]
+                if (id >= from && (to == undefined || id <= to)) pairs.push({
+                    id,
+                    pair: line[1],
+                    token0: line[2],
+                    token1: line[3]
+                })
+                return pairs
+            }, [])
         : []
+
+    if (pairs.length > to) return Promise.resolve(pairs.slice(0, to))
 
     return (to
         ? Promise.resolve(to)
@@ -27,15 +57,14 @@ const load = params => {
             functionName: 'allPairsLength'
         }).then(_ => Number(_))
     ).then(allPairsLength => {
-        const pairs = Array(allPairsLength)
         var next_pair_order = 0    
-        var start_from = pairs_ids.length
-            ? pairs_ids[pairs_ids - 1] + 1
+        const start_loading_from = pairs.length
+            ? Math.max(from || 0, pairs[pairs.length - 1].id + 1)
             : 0
 
         missed.forEach(_ => _.length = 0)
         
-        for (var i = start_from, rr = 0; i < allPairsLength; i++) {
+        for (var i = start_loading_from, rr = 0; i < allPairsLength; i++) {
             missed[rr].push(i)
             if (missed[rr].length % chunk_size == 0)
                 rr = (rr + 1) % workers
@@ -88,5 +117,36 @@ const load = params => {
 }
 
 
-module.exports.all = params =>
+module.exports.all = (params = {}) =>
     load(params)
+
+module.exports.onupdate = function onupdate(callback, params = {}) {
+    var subscribe = true, timeout
+    load(params)
+    .then(pairs => {
+        callback(pairs)
+
+        const update = pairs =>
+            timeout = setTimeout(
+                () =>
+                    load({...params, pairs, from: pairs.length})
+                    .then(pairs => {
+                        if (!subscribe) return
+                        callback(pairs)
+                        if (!subscribe) return
+                        if (params.to && pairs[pairs.length - 1].id >= params.to) return
+                        update(pairs)
+                    }),
+                params.update_timeout || 5000
+            )
+
+        if (!subscribe) return
+        if (params.to && pairs[pairs.length - 1].id >= params.to) return
+        update(pairs)
+    })
+
+    return () => {
+        subscribe = false
+        if (timeout) clearTimeout(timeout)
+    }
+}

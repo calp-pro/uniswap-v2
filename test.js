@@ -29,3 +29,20 @@ test('Load first two pairs to file', () => {
         fs.unlinkSync(filename)
     )
 })
+
+test('onupdate should call provided callback with 2 pairs for a current moment (from cache)', () => {
+    return new Promise(y => {
+        const unsubscribe = uniswap_v2_loader.onupdate(pairs => {
+            assert.equal(pairs.length, 2)
+            unsubscribe()
+            y()
+        }, {to: 2})
+    })
+})
+
+test('Heavy test load first 3000 pairs', () =>
+    uniswap_v2_loader.all({to: 3000})
+    .then(pairs => {
+        assert.equal(pairs.length, 3000)
+    })
+)
