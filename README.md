@@ -6,6 +6,13 @@ High-speed Uniswap v2 pair loader using viem multicall and parallel CPU processi
 The package uses Alchemy. Set your key as an environment variable (a default key is used if none is provided):
 `export KEY=your_alchemy_key`
 
+## CLI
+```
+npm i -g uniswap-v2-loader
+uniswap-v2-loader
+```
+
+
 ## API Reference
 ### `all(params)`
 - **Description**: Fetches token pairs from the Uniswap v2 factory. It utilizes multicall from `viem` and splits the loading process between multiple CPUs for high-speed execution.
