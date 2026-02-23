@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+const { all, count, clear_cache } = require('../index')
+const rl = require('readline')
+
+const progress = (c, t) => {
+	const total_len = t.toString().length
+	const cur = c.toString().padStart(total_len)
+	const pct = (c / t * 100 | 0).toString().padStart(3)
+	rl.cursorTo(process.stdout, 0)
+	rl.clearLine(process.stdout, 0)
+	process.stdout.write(`Loaded: ${cur} / ${t} (${pct}%)`)
+}
+
+if (process.argv[2] == '-c' || process.argv[2] == '--count')
+	console.log(count())
+else if (process.argv[2] == '--clear')
+	clear_cache()
+else 
+	all({progress})

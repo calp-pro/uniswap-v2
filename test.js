@@ -46,3 +46,10 @@ test('Heavy test load first 3000 pairs', () =>
         assert.equal(pairs.length, 3000)
     })
 )
+
+test('Each line at CSV cache file should be orderd by pair id (factory id)', () => {
+    const lines = fs.readFileSync(require('./default_cache_filename'), 'utf8').trim().split('\n')
+    for (var i = 0; i < lines.length; i++)
+        assert.equal(i, +lines[i].split(',').shift())
+})
+

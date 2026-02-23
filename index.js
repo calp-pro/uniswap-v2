@@ -1,26 +1,9 @@
-const { spawn } = require('child_process')
+const cluster = require('cluster')
 const fs = require('fs')
 const os = require('os')
-const path = require('path')
-const env = process.env
-const home = os.homedir()
-const pkg = require('./package.json')
-const default_filename = path.join(
-  ...(process.platform === 'win32'
-      ? (env.LOCALAPPDATA || env.APPDATA)
-        ? [env.LOCALAPPDATA || env.APPDATA]
-        : [home, 'AppData', 'Local']
-      : process.platform === 'darwin'
-        ? [home, 'Library', 'Caches']
-        : (env.XDG_CACHE_HOME && path.isAbsolute(env.XDG_CACHE_HOME))
-          ? [env.XDG_CACHE_HOME]
-          : [home, '.cache']
-  ),
-  pkg.name + '_pairs.csv'
-)
 const { parseAbiItem, createPublicClient, http } = require('viem')
 const { mainnet } = require('viem/chains')
-
+const default_filename = require('./default_cache_filename')
 const workers = os.cpus().length - 1
 const missed = Array(workers).fill(null).map(() => [])
 const key = process.env.KEY || 'FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu'
@@ -57,73 +40,54 @@ const load = params => {
             abi: [parseAbiItem('function allPairsLength() view returns (uint256)')],
             functionName: 'allPairsLength'
         }).then(_ => Number(_))
-    ).then(allPairsLength => {
-        var next_pair_order = 0    
+    ).then(all_pairs_length => {
         const start_loading_from = pairs.length
             ? Math.max(from || 0, pairs[pairs.length - 1].id + 1)
             : 0
 
+        var next_pair_order = pairs.length
+            ? pairs[pairs.length - 1].id + 1
+            : 0
+
         missed.forEach(_ => _.length = 0)
         
-        for (var i = start_loading_from, rr = 0; i < allPairsLength; i++) {
+        for (var i = start_loading_from, rr = 0; i < all_pairs_length; i++) {
             missed[rr].push(i)
             if (missed[rr].length % chunk_size == 0)
                 rr = (rr + 1) % workers
         }
         
         var progress_i = 0
-        const progress_end = allPairsLength - start_loading_from
+        const progress_end = all_pairs_length - start_loading_from
         
-        const jobs_data_filename = `jobs_data_${Date.now()}.json`
-        fs.writeFileSync(jobs_data_filename, JSON.stringify({
-            missed,
-            factory,
-            chunk_size,
-            key
-        }), 'utf8')
-        
+        cluster.setupPrimary({ exec: __dirname + '/loader.js' })
         return Promise.all(
             missed
             .filter(_ => _.length)
-            .map((_, i) => new Promise(y => {
-                const loader = spawn('node', ['loader.js', jobs_data_filename, i.toString()])
-                loader.stdout.on('data', data => {
-                    data += data.toString()
-                    if (!data.includes('\n')) return
-                    const lines = data.split('\n')
-                    data = lines.shift()
-                    lines.forEach(line => {
-                        const a = line.split(',')
-                        const id = +a[0]
-                        pairs[id] = {
-                            id,
-                            pair: a[1],
-                            token0: a[2],
-                            token1: a[3]
-                        }
-                    })
-                    if (progress) {
-                        progress_i += lines.length
-                        progress(progress_i, progress_end)
-                    }
+            .map((missed, i) => new Promise(y => {
+                const w = cluster.fork()
+                w.send({ missed, factory, chunk_size, key })
+                w.on('message', p => {
+                    const id = p[0]
+                    pairs[id] = { id, pair: p[1], token0: p[2], token1: p[3] }
+                    if (progress) progress(++progress_i, progress_end)
                     if (filename) {
-                        var pair
-                        while (pair = pairs[next_pair_order]) {
-                            fs.appendFileSync(filename, pair.id + ',' + pair.pair + ',' + pair.token0 + ',' + pair.token1 + '\n')
+                        var _
+                        while (_ = pairs[next_pair_order]) {
+                            fs.appendFileSync(filename, `${_.id},${_.pair},${_.token0},${_.token1}\n`)
                             next_pair_order++
                         }
                     }
                 })
-                loader.on('close', y)
+                w.on('exit', y)
             }))
-        )
-        .then(() => {
-            fs.unlinkSync(jobs_data_filename)
-            return pairs
-        })
+        ).then(() => pairs)
     })
 }
 
+
+module.exports.clear_cache = () =>
+    fs.unlinkSync(default_filename)
 
 module.exports.all = (params = {}) =>
     load(params)

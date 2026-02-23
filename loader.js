@@ -1,6 +1,5 @@
 const { parseAbiItem, createPublicClient, http } = require('viem')
 const { mainnet } = require('viem/chains')
-const fs = require('fs')
 
 const POOL = {
     ID: 0,
@@ -69,7 +68,7 @@ async function load(params) {
                     pool[POOL.TOKEN0] = token0_result.result.toLowerCase()
                     pool[POOL.TOKEN1] = token1_result.result.toLowerCase()
 
-                    console.log(pool.join(','))
+                    process.send(pool)
                 } else {
                     retry_missed.push(pools_ok[j].id)
                 }
@@ -88,17 +87,11 @@ async function load(params) {
     }
 }
 
-const jobs_data_filename = process.argv[2]
-const job_index = +process.argv[3]
+process.on('message', jobs_data => {
+    const client = createPublicClient({
+        chain: mainnet,
+        transport: http(`https://eth-mainnet.g.alchemy.com/v2/${jobs_data.key}`)
+    })
 
-if (isNaN(job_index)) process.exit(1)
-
-const jobs_data = JSON.parse(fs.readFileSync(jobs_data_filename, 'utf8'))
-jobs_data.missed = jobs_data.missed[job_index]
-
-const client = createPublicClient({
-    chain: mainnet,
-    transport: http(`https://eth-mainnet.g.alchemy.com/v2/${jobs_data.key}`)
+    load({client, ...jobs_data}).then(() => process.exit())
 })
-
-load({client, ...jobs_data})
