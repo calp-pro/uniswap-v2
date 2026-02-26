@@ -9,13 +9,13 @@
     "crypto",
     "ethereum"
   ],
-  "homepage": "https://github.com/calp-pro/uniswap-v2#readme",
+  "homepage": "https://github.com/calp-pro/uniswap-v2-loader#readme",
   "bugs": {
-    "url": "https://github.com/calp-pro/uniswap-v2/issues"
+    "url": "https://github.com/calp-pro/uniswap-v2-loader/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/calp-pro/uniswap-v2.git"
+    "url": "git+https://github.com/calp-pro/uniswap-v2-loader.git"
   },
   "license": "MIT",
   "author": "Vladimir Spirin (spirin.vladimir@gmail.com)",
