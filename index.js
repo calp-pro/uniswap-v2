@@ -4,19 +4,30 @@ const os = require('os')
 const path = require('path')
 const { parseAbiItem, createPublicClient, http } = require('viem')
 const { mainnet } = require('viem/chains')
-const default_filename = require('./default_cache_filename')
-const workers = os.cpus().length - 1
-const missed = Array(workers).fill(null).map(() => [])
-const key = process.env.KEY || 'FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu'
-const factory = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
-const client = createPublicClient({
-    chain: mainnet,
-    transport: http('https://eth-mainnet.g.alchemy.com/v2/' + key)
-})
+const default_cache_filename = require('./default_cache_filename')
+const max_workers = os.cpus().length - 1
+const debug_key = process.env.KEY || 'FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu'
+const uniswap_v2_factory = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
 
-const load = params => {
-    const {filename = default_filename, to, from = 0, multicall_size = 50, progress, count, multicore = true} = params
-    const pairs = params.pairs || fs.existsSync(filename)
+const load = (params = {}) => {
+    var {
+        key = debug_key,
+        factory = uniswap_v2_factory,
+        filename = default_cache_filename,
+        multicall_size = 50,
+        from = 0,
+        to,
+        progress,
+        count,
+        workers = max_workers,
+        pairs,
+    } = params
+    const client = createPublicClient({
+        chain: mainnet,
+        transport: http('https://eth-mainnet.g.alchemy.com/v2/' + key)
+    })
+
+    pairs ??= fs.existsSync(filename)
         ? fs.readFileSync(filename).toString().trim().split('\n')
             .reduce((pairs, line) => {
                 line = line.split(',')
@@ -52,8 +63,6 @@ const load = params => {
             : 0
         var progress_i = 0
         const progress_end = all_pairs_length - start_loading_from
-
-        missed.forEach(_ => _.length = 0)
         
         const onpair = pair => {
             pairs[pair.id] = pair
@@ -67,18 +76,23 @@ const load = params => {
             }
         }
 
-        if (workers == 0 || multicore == false) {
+        if (!workers) {
             const ids = []
             for (var i = start_loading_from; i < all_pairs_length; i++)
                 ids.push(i)
             return require('./loader')({ ids, factory, key, multicall_size }, onpair)
         
         }
-        for (var i = start_loading_from, rr = 0; i < all_pairs_length; i++) {
-            missed[rr].push(i)
-            if (missed[rr].length % multicall_size == 0)
-                rr = (rr + 1) % workers
+
+        const missed = []
+        for (var i = start_loading_from, ids; i < all_pairs_length; i++) {
+            if (!ids || ids.length % multicall_size == 0) {
+                ids = []
+                missed.push(ids)
+            }
+            ids.push(i)
         }
+        
         cluster.setupPrimary({ exec: path.join(__dirname, 'loader.js') })
         
         return Promise.all(
@@ -95,14 +109,16 @@ const load = params => {
 }
 
 
-module.exports.clear_cache = () =>
-    fs.unlinkSync(default_filename)
+module.exports.clear_cache = () => {
+    if (fs.existsSync(default_cache_filename))
+    fs.unlinkSync(default_cache_filename)
+}
 
-module.exports.all = (params = {}) =>
+module.exports.load = (params = {}) =>
     load(params)
     
-module.exports.count = () =>
-    load({count: true})
+module.exports.count = (params = {}) =>
+    load({count: true, ...params})
 
 module.exports.onupdate = function onupdate(callback, params = {}) {
     params.update_timeout ??= 5000

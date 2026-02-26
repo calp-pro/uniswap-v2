@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { all, count, clear_cache } = require('../index')
+const { load, count, clear_cache } = require('../index')
 const rl = require('readline')
 
 const progress = (c, t) => {
@@ -16,4 +16,4 @@ if (process.argv[2] == '-c' || process.argv[2] == '--count')
 else if (process.argv[2] == '--clear')
 	clear_cache()
 else 
-	all({progress})
+	load({progress})
