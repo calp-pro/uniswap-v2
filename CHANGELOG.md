@@ -1,4 +1,12 @@
-## [1.5.0] - 2026-02-26
+## [3.0.0] - 2026-02-27
+- Added TypeScript type definitions (`index.d.ts`).
+- Added JSDoc documentation for a better developer experience.
+- Generalized protocol support for any Uniswap V2-compatible factory.
+- Removed `count` method from the API for a cleaner, promise-based interface.
+
+## [2.0.0] - 2026-02-26
+- API Cleanup: `load` replaces `all` (now strictly returning `Promise<pair[]>`).
+- API Cleanup: `multicall_size` replaces `chunk_size`.
 - single core option ("multicore" - false)
 - prune async/await sintax sugar
 - worker delivery message at expected output pair format
