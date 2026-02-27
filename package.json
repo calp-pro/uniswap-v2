@@ -21,6 +21,7 @@
   "author": "Vladimir Spirin (spirin.vladimir@gmail.com)",
   "type": "commonjs",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "node --test test.js"
   },
@@ -29,5 +30,8 @@
   },
   "dependencies": {
     "viem": "^2.46.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

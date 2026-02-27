@@ -18,7 +18,6 @@ const load = (params = {}) => {
         from = 0,
         to,
         progress,
-        count,
         workers = max_workers,
         pairs,
     } = params
@@ -43,7 +42,6 @@ const load = (params = {}) => {
             }, [])
         : []
 
-    if (count) return pairs.length
     if (to && pairs.length > to) return Promise.resolve(pairs.slice(0, to))
 
     return (to
@@ -116,9 +114,6 @@ module.exports.clear_cache = () => {
 
 module.exports.load = (params = {}) =>
     load(params)
-    
-module.exports.count = (params = {}) =>
-    load({count: true, ...params})
 
 module.exports.onupdate = function onupdate(callback, params = {}) {
     params.update_timeout ??= 5000
