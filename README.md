@@ -1,8 +1,5 @@
-# <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./calp-dark.svg">
-  <img alt="calp.pro icon" src="./calp-light.svg" height="32" style="vertical-align: middle;">
-</picture> uniswap-v2-loader
-<br>
+# <picture><source media="(prefers-color-scheme: dark)" srcset="./calp-dark.svg"><img alt="calp.pro icon" src="./calp-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
+
 <br>
 
 **Fast DeFi AMM pools loader.** Optimized for **Multi-core CPUs** with **viem** multicall and smart **disk-cache**.
