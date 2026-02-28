@@ -5,6 +5,14 @@ const os = require('os')
 const home = os.homedir()
 const pkg = require('./package.json')
 
+const is_dir = _ => {
+  try {
+    return fs.statSync(_).isDirectory() && fs.accessSync(_, fs.constants.W_OK) === undefined
+  } catch (e) {
+    return false
+  }
+}
+
 module.exports = (factory) => path.join(
   ...(process.platform === 'win32'
       ? env.LOCALAPPDATA || env.APPDATA
@@ -12,10 +20,10 @@ module.exports = (factory) => path.join(
         : [home, 'AppData', 'Local']
       : process.platform === 'darwin'
         ? [home, 'Library', 'Caches']
-        : env.XDG_CACHE_HOME && path.isAbsolute(env.XDG_CACHE_HOME) && fs.existsSync(env.XDG_CACHE_HOME)
+        : is_dir(env.XDG_CACHE_HOME) && path.isAbsolute(env.XDG_CACHE_HOME)
           ? [env.XDG_CACHE_HOME]
-          : fs.existsSync(path.join(home, '.cache'))
+          : is_dir(path.join(home, '.cache'))
             ? [home, '.cache']
-            : [os.tmpdir()],
+            : [is_dir(os.tmpdir()) ? os.tmpdir() : '.'],
   `${pkg.name}_${factory.toLowerCase()}.csv`
 )
