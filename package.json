@@ -10,7 +10,10 @@
     "ethereum",
     "defi",
     "sushiswap",
-    "pancakeswap"
+    "pancakeswap",
+    "shibaswap",
+    "dex",
+    "exchange"
   ],
   "homepage": "https://github.com/calp-pro/uniswap-v2-loader#readme",
   "bugs": {

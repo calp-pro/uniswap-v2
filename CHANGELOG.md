@@ -1,3 +1,11 @@
+## [5.0.0] - 2026-02-28
+- Minor corrections of default values at README.md
+- Factory address not at lower case. It lower case only at CSV filename for OS compatability.
+- Fix test which use outdated version of default_cache_filename.js
+- BREAK change rename `onupdate` to `subscribe`
+- Rename *.svg files with logo from "calp" => "logo"
+- Add more keywords to package.json
+
 ## [4.0.1] - 2026-02-28
 - Update README.md
 - Add factory_address to default name of CSV file

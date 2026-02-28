@@ -47,11 +47,11 @@ export function load(params?: load_params): Promise<pair[]>
 
 /**
  * Subscribes to new pairs being added to the factory.
- * @param callback Called whenever new pairs are loaded.
+ * @param callback Called with total available data first and then whenever new pairs added to factory.
  * @param params Loading configuration.
  * @returns An unsubscribe function.
  */
-export function onupdate(
+export function subscribe(
   callback: (pairs: pair[]) => void,
   params?: load_params
 ): () => void

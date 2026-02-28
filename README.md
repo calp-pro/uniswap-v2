@@ -1,4 +1,4 @@
-# <picture><source media="(prefers-color-scheme: dark)" srcset="./calp-dark.svg"><img alt="calp.pro icon" src="./calp-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
+# <picture><source media="(prefers-color-scheme: dark)" srcset="./logo-dark.svg"><img alt="calp.pro icon" src="./logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
 
 <br>
 
@@ -42,8 +42,8 @@ High-performance parallel fetcher for liquidity pairs. Efficiently synchronizes 
 | `from` | `number` | Start loading from this pair index. | `0` |
 | `to` | `number` | End index (exclusive). Required for range loading. | `undefined` |
 | `filename` | `string` | Local CSV cache path. Supports OS-standard locations. | *Auto-detected* |
-| `factory` | `string` | Smart contract factory address. | `Uniswap V2` |
-| `key` | `string` | Alchemy/RPC API Key (priority over ENV). | `process.env.KEY` |
+| `factory` | `string` | Smart contract factory address. | `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f` |
+| `key` | `string` | Alchemy/RPC API Key (priority over ENV). | `FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu` |
 | `multicall_size` | `number` | RPC batch size per multicall request. | `50` |
 | `workers` | `number` | Number of parallel worker threads. | `CPU - 1` |
 | `progress` | `function` | Progress callback: `(current, total) => {}`. | `undefined` |
@@ -74,7 +74,7 @@ Cache files are named following the pattern `${package_name}_{factory_address}.c
 
 ---
 
-### `onupdate(callback, params)`
+### `subscribe(callback, params)`
 Continuous synchronization engine. Performs initial load and subsequently polls for new pairs.
 
 **Parameters**
@@ -102,7 +102,7 @@ Standardized liquidity pool object.
 
 ## Usage Example
 ```javascript
-const { load, onupdate } = require('uniswap-v2-loader')
+const { load, subscribe } = require('uniswap-v2-loader')
 const rl = require('readline')
 
 

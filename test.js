@@ -1,7 +1,7 @@
 const fs = require('fs')
 const { describe, before, it } = require('node:test')
 const assert = require('node:assert/strict')
-const {load, onupdate} = require('./index')
+const {load, subscribe} = require('./index')
 const default_cache_filename = require('./default_cache_filename')
 
 describe('Uniswap V2', () => {
@@ -42,9 +42,9 @@ describe('Uniswap V2', () => {
         )
     })
 
-    it('onupdate should call provided callback with 2 pairs for a current moment (from cache)', () => {
+    it('subscribe should call provided callback with 2 pairs for a current moment (from cache)', () => {
         return new Promise(y => {
-            const unsubscribe = onupdate(pairs => {
+            const unsubscribe = subscribe(pairs => {
                 assert.equal(pairs.length, 2)
                 unsubscribe()
                 y()
@@ -63,7 +63,7 @@ describe('Uniswap V2', () => {
     )
 
     it('Each line at CSV cache file should be orderd by pair id (factory id)', () => {
-        const lines = fs.readFileSync(require('./default_cache_filename'), 'utf8').trim().split('\n')
+        const lines = fs.readFileSync(require('./default_cache_filename')('0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'), 'utf8').trim().split('\n')
         for (var i = 0; i < lines.length; i++)
             assert.equal(i, +lines[i].split(',').shift())
     })

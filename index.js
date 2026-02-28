@@ -7,7 +7,7 @@ const { mainnet } = require('viem/chains')
 const default_cache_filename = require('./default_cache_filename')
 const max_workers = os.cpus().length - 1
 const debug_key = process.env.KEY || 'FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu'
-const uniswap_v2_factory = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
+const uniswap_v2_factory = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
 
 const load = (params = {}) => {
     var {
@@ -110,9 +110,9 @@ const load = (params = {}) => {
 module.exports.load = (params = {}) =>
     load(params)
 
-module.exports.onupdate = function onupdate(callback, params = {}) {
+module.exports.subscribe = (callback, params = {}) => {
     params.update_timeout ??= 5000
-    var subscribe = true, timeout
+    var subscribed = true, timeout
     load(params)
     .then(pairs => {
         callback(pairs)
@@ -122,22 +122,22 @@ module.exports.onupdate = function onupdate(callback, params = {}) {
                 () =>
                     load({...params, pairs, from: pairs.length})
                     .then(pairs => {
-                        if (!subscribe) return
+                        if (!subscribed) return
                         callback(pairs)
-                        if (!subscribe) return
+                        if (!subscribed) return
                         if (params.to && pairs[pairs.length - 1].id >= params.to) return
                         update(pairs)
                     }),
                 params.update_timeout
             )
 
-        if (!subscribe) return
+        if (!subscribed) return
         if (params.to && pairs[pairs.length - 1].id >= params.to) return
         update(pairs)
     })
 
     return () => {
-        subscribe = false
+        subscribed = false
         if (timeout) clearTimeout(timeout)
     }
 }
