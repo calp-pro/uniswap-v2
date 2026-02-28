@@ -2,7 +2,7 @@
 
 <br>
 
-**Fast DeFi AMM pools loader.** Optimized for **Multi-core CPUs** with **viem** multicall and smart **disk-cache**.
+**Fast DeFi AMM pools loader.** Optimized for **Multi-core CPUs** with smart **disk-cache**.
 
 ### Popular Uniswap V2 based protocols
 | Protocol | Factory Address |
