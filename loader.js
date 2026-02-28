@@ -1,26 +1,30 @@
 const { parseAbiItem, createPublicClient, http } = require('viem')
 const { mainnet } = require('viem/chains')
 
-const get_pairs_addresses = (client, factory, ids) => ids.length == 0
+const get_pairs_addresses = (key, factory, ids) => ids.length == 0
     ? Promise.resolve([])
-    : client.multicall({
-        contracts: ids.map(id => ({
-            address: factory,
-            abi: [parseAbiItem('function allPairs(uint256) view returns (address)')],
-            functionName: 'allPairs',
-            args: [BigInt(id)]
-        }))
-    }).then(responds => {
+    : fetch('https://eth-mainnet.g.alchemy.com/v2/' + key, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(ids.map((id, i) => ({
+            jsonrpc: '2.0',
+            id: i,
+            method: 'eth_call',
+            params: [{ to: factory, data: '0x1e3dd18b' + id.toString(16).padStart(64, '0') }, 'latest']
+        })))
+    }).then(_ => _.json()).then(responds => {
+        if (!Array.isArray(responds)) responds = [responds]
+        responds.sort((a, b) => a.id - b.id)
         const addresses = []
         const failed_ids = []
         for (var i = 0; i < responds.length; i++)
-            responds[i].status == 'success'
-                ? addresses.push(responds[i].result)
-                : failed_ids.push(i)
+            responds[i].result
+                ? addresses.push('0x' + responds[i].result.slice(-40))
+                : failed_ids.push(ids[i])
 
-        return get_pairs_addresses(client, factory, failed_ids).then(retried_addresses =>
-            [...addresses, ...retried_addresses]
-        )
+        return failed_ids.length == 0
+            ? addresses
+            : get_pairs_addresses(key, factory, failed_ids).then(retried => [...addresses, ...retried])
     })
 
 const get_tokens = (client, addresses) => addresses.length == 0
@@ -73,7 +77,7 @@ const main = ({ids, factory, key, multicall_size}, onpair) => {
 
     return chunks.reduce((p, ids, ic) =>
         p.then(() =>
-            get_pairs_addresses(client, factory, ids).then(pairs_addresses =>
+            get_pairs_addresses(key, factory, ids).then(pairs_addresses =>
                 get_tokens(client, pairs_addresses).then(tokens =>
                     ids.forEach((id, i) =>
                         onpair({

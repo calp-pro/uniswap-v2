@@ -52,7 +52,6 @@ const load = (params = {}) => {
             })
         }).then(_ => _.json()).then(_ => Number(_.result))
     ).then(all_pairs_length => {
-        console.log(`all_pairs_length`, all_pairs_length)
         const start_loading_from = pairs.length
             ? Math.max(from || 0, pairs[pairs.length - 1].id + 1)
             : 0
