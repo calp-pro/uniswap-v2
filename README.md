@@ -1,6 +1,5 @@
-# <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-dark.svg"><img alt="calp.pro icon" src="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
+# <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-dark.svg"><img alt="calp.pro icon" src="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;uniswap-v2-loader&nbsp;&nbsp;[![Coverage](https://coveralls.io/repos/github/calp-pro/uniswap-v2-loader/badge.svg?branch=main)](https://coveralls.io/github/calp-pro/uniswap-v2-loader)
 
-[![Coverage](https://coveralls.io/repos/github/calp-pro/uniswap-v2-loader/badge.svg?branch=main)](https://coveralls.io/github/calp-pro/uniswap-v2-loader)
 <br>
 
 **Fast DeFi AMM pools loader.** Optimized for **Multi-core CPUs** with smart **disk-cache**.
