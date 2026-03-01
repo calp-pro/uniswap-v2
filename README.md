@@ -1,10 +1,10 @@
-# <picture><source media="(prefers-color-scheme: dark)" srcset="./logo-dark.svg"><img alt="calp.pro icon" src="./logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
+# <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-dark.svg"><img alt="calp.pro icon" src="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
 
 <br>
 
 **Fast DeFi AMM pools loader.** Optimized for **Multi-core CPUs** with smart **disk-cache**.
 
-### Popular Uniswap V2 based protocols
+## Uniswap V2 based protocols
 | Protocol | Factory Address |
 | :--- | :--- |
 | **Uniswap V2** | `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f` |
@@ -16,7 +16,7 @@
 | **Balancer V2** | `0xBA12222222228d8Ba445958a75a0704d566BF2C8` |
 
 
-### CLI
+## CLI
 ```bash
 npm i -g uniswap-v2-loader
 uniswap-v2-loader --help
