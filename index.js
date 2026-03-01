@@ -5,7 +5,7 @@ const path = require('path')
 const default_cache_filename = require('./default_cache_filename')
 const max_workers = os.cpus().length - 1
 const debug_key = process.env.KEY || 'FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu'
-const uniswap_v2_factory = '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f'
+const uniswap_v2_factory = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
 
 const load = (params = {}) => {
     var {

@@ -24,5 +24,18 @@ jobs:
     - name: Global install package CLI version
       run: npm i -g .
 
-    - name: Load first 4 pairs from Uniswap V2 using 2 workers
+    - name: CLI Load first 4 pairs from Uniswap V2 using 2 workers
       run: uniswap-v2-loader --to=4 --multicall_size=2 --workers=2
+
+    - name: Run tests with coverage
+      run: |
+        node --experimental-test-coverage \
+          --test-reporter=spec --test-reporter-destination=stdout \
+          --test-reporter=lcov --test-reporter-destination=lcov.info \
+          --test
+
+    - name: Upload to Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        file: lcov.info

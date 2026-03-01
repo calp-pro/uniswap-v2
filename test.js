@@ -5,9 +5,11 @@ const {load, subscribe} = require('./index')
 const default_cache_filename = require('./default_cache_filename')
 
 describe('Uniswap V2', () => {
+    const uniswap_v2_factory = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
+    const uniswap_v2_cache_filename = default_cache_filename(uniswap_v2_factory)
     before(() => {
-        if (fs.existsSync(default_cache_filename))
-            fs.unlinkSync(default_cache_filename)
+        if (fs.existsSync(uniswap_v2_cache_filename))
+            fs.unlinkSync(uniswap_v2_cache_filename)
     })
     
     it('Exist USDC/USDP pair', () =>
@@ -18,9 +20,12 @@ describe('Uniswap V2', () => {
             assert.ok(i != -1)
             if (i != -1) {
                 const {pair, token0, token1} = pairs[i]
-                assert.equal(pair, '0x3139Ffc91B99aa94DA8A2dc13f1fC36F9BDc98eE')
-                assert.equal(token0, '0x8E870D67F660D95d5be530380D0eC0bd388289E1')
-                assert.equal(token1, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48')
+                // Return format should be standardized between Ethereum nodes which
+                // can return address in lower-case and mix-case formats
+                // Lower-case format guarantee matching addresses with == operator 
+                assert.equal(pair, '0x3139ffc91b99aa94da8a2dc13f1fc36f9bdc98ee')
+                assert.equal(token0, '0x8e870d67f660d95d5be530380d0ec0bd388289e1')
+                assert.equal(token1, '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48')
             }
         })
     )

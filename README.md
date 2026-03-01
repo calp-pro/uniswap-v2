@@ -1,4 +1,4 @@
-# <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-dark.svg"><img alt="calp.pro icon" src="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;&nbsp;uniswap-v2-loader
+# <picture><source media="(prefers-color-scheme: dark)" srcset="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-dark.svg"><img alt="calp.pro icon" src="https://cdn.jsdelivr.net/npm/uniswap-v2-loader@5.0.1/logo-light.svg" height="32" align="absmiddle"></picture>&nbsp;&nbsp;uniswap-v2-loader&nbsp;&nbsp;[![Coverage](https://coveralls.io/repos/github/calp-pro/uniswap-v2-loader/badge.svg?branch=main)](https://coveralls.io/github/calp-pro/uniswap-v2-loader)
 
 <br>
 
@@ -7,13 +7,13 @@
 ## Uniswap V2 based protocols
 | Protocol | Factory Address |
 | :--- | :--- |
-| **Uniswap V2** | `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f` |
-| **SushiSwap** | `0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac` |
-| **PancakeSwap** | `0x1097053Fd2ea711dad45caCcc45EfF7548fCB362` |
-| **ShibaSwap** | `0x115934131916C8b277DD010Ee02de363c09d037c` |
-| **DefiSwap** | `0x9DEB29c9a4c7A88a3C0257393b7f3335338D9A9D` |
-| **EtherVista** | `0x9a27cb5ae0B2cEe0bb71f9A85C0D60f3920757B4` |
-| **Balancer V2** | `0xBA12222222228d8Ba445958a75a0704d566BF2C8` |
+| **Uniswap V2** | `0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f` |
+| **SushiSwap** | `0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac` |
+| **PancakeSwap** | `0x1097053fd2ea711dad45caccc45eff7548fcb362` |
+| **ShibaSwap** | `0x115934131916c8b277dd010ee02de363c09d037c` |
+| **DefiSwap** | `0x9deb29c9a4c7a88a3c0257393b7f3335338d9a9d` |
+| **EtherVista** | `0x9a27cb5ae0b2cee0bb71f9a85c0d60f3920757b4` |
+| **Balancer V2** | `0xba12222222228d8ba445958a75a0704d566bf2c8` |
 
 
 ## CLI

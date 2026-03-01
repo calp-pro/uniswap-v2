@@ -15,7 +15,7 @@ const get_pairs_addresses = (key, factory, ids) => ids.length == 0
         const failed_ids = []
         for (var i = 0; i < responds.length; i++)
             responds[i].result
-                ? addresses.push('0x' + responds[i].result.slice(-40))
+                ? addresses.push('0x' + responds[i].result.slice(-40).toLowerCase())
                 : failed_ids.push(ids[i])
 
         return failed_ids.length == 0
@@ -53,8 +53,8 @@ const get_tokens = (key, addresses) => addresses.length == 0
 
             if (token0_respond.result && token1_respond.result)
                 tokens[addresses[i]] = [
-                    '0x' + token0_respond.result.slice(-40),
-                    '0x' + token1_respond.result.slice(-40)
+                    '0x' + token0_respond.result.slice(-40).toLowerCase(),
+                    '0x' + token1_respond.result.slice(-40).toLowerCase()
                 ]
             else
                 failed_addresses.push(addresses[i])
