@@ -19,7 +19,6 @@ const options = [
     'from',
     'to',
     'workers',
-    'update_timeout'
 ]
 
 const params = { progress }

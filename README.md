@@ -28,7 +28,6 @@ Options:
 	--from
 	--to
 	--workers
-	--update_timeout
 ```
 
 ## API Reference
