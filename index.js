@@ -57,7 +57,15 @@ const load = (params = {}) => {
                 method: 'eth_call',
                 params: [{ to: factory, data: '0x574f2ba3' }, 'latest']
             })
-        }).then(_ => _.json()).then(_ => Number(_.result))
+        }).then(
+            _ => {
+                if (_.ok) return _.json().then(_ => Number(_.result))
+                throw 'fail start'
+            },
+            _ => {
+                throw 'fetch failed'
+            }
+        )
     ).then(all_pairs_length => {
         const start_loading_from = pairs.length
             ? Math.max(from, pairs[pairs.length - 1].id + 1)
@@ -111,6 +119,7 @@ const load = (params = {}) => {
             }))
         ).then(() => pairs)
     })
+    .catch(() => new Promise(resolve => setTimeout(() => resolve(load(params)), 1000)))
 }
 
 module.exports.load = (params = {}) =>
