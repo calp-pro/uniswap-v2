@@ -2,15 +2,6 @@
 const { load } = require('../index')
 const rl = require('readline')
 
-const progress = (c, t) => {
-	const total_len = t.toString().length
-	const cur = c.toString().padStart(total_len)
-	const pct = (c / t * 100 | 0).toString().padStart(3)
-	rl.cursorTo(process.stdout, 0)
-	rl.clearLine(process.stdout, 0)
-	process.stdout.write(`Loaded: ${cur} / ${t} (${pct}%)`)
-}
-
 const options = [
     'key',
     'factory',
@@ -21,7 +12,7 @@ const options = [
     'workers',
 ]
 
-const params = { progress }
+const params = {}
 var i = 2
 while (arg = process.argv[i]) {
     if (arg == '-h' || arg == '--help') {
@@ -45,8 +36,40 @@ while (arg = process.argv[i]) {
             process.exit(22)
         }
     }
+	if (option == 'from' || option == 'to') {
+		value = Number(value)
+		if (isNaN(value) || value < 0 || !Number.isInteger(value)) {
+			console.log(`"${option}" should be a numeric index of pair at factory.`)
+			process.exit(22)
+		}
+	}
+	if (option == 'workers') {
+		value = Number(value)
+		if (isNaN(value) || value < 0 || !Number.isInteger(value)) {
+			console.log(`"workers" should be a numeric and positive integer.`)
+			process.exit(22)
+		}
+	}
+	if (option == 'multicall_size') {
+		value = Number(value)
+		if (isNaN(value) || value < 1 || !Number.isInteger(value)) {
+			console.log(`"multicall_size" should be a numeric. Not less then 1 request.`)
+			process.exit(22)
+		}
+	}
     params[option] = value
     i++
 }
+
+params.progress = params.filename
+	? (c, t, pair) => {
+		const total_left = t.toString().length
+		const cur = c.toString().padStart(total_left)
+		const pct = String(Math.round(100 * c / t)).padStart(3)
+		rl.cursorTo(process.stdout, 0)
+		rl.clearLine(process.stdout, 0)
+		process.stdout.write(`Loaded: ${cur} / ${t} (${pct}%)`)
+	}
+	: (c, t, _) => console.log(`${_.id},${_.pair},${_.token0},${_.token1}`)
 
 load(params)

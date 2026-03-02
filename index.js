@@ -20,6 +20,7 @@ const load = (params = {}) => {
         pairs,
     } = params
     filename ??= default_cache_filename(factory)
+    workers = Math.min(workers, max_workers)
 
     pairs ??= fs.existsSync(filename)
         ? fs.readFileSync(filename).toString().trim().split('\n')
@@ -37,8 +38,14 @@ const load = (params = {}) => {
             }, [])
         : []
 
-    if (to && pairs.length >= to) return Promise.resolve(pairs.slice(0, to))
+    if (to >= 0 && pairs.length >= to) {
+        if (progress)
+            for (var i = from; i < to; i++)
+                progress(pairs[i].id, to, pairs[i])
 
+        return Promise.resolve(pairs.slice(0, to))
+    }
+    
     return (to
         ? Promise.resolve(to)
         : fetch('https://eth-mainnet.g.alchemy.com/v2/' + key, {
@@ -53,24 +60,24 @@ const load = (params = {}) => {
         }).then(_ => _.json()).then(_ => Number(_.result))
     ).then(all_pairs_length => {
         const start_loading_from = pairs.length
-            ? Math.max(from || 0, pairs[pairs.length - 1].id + 1)
+            ? Math.max(from, pairs[pairs.length - 1].id + 1)
             : 0
 
         var next_pair_order = pairs.length
             ? pairs[pairs.length - 1].id + 1
             : 0
-        var progress_i = 0
-        const progress_end = all_pairs_length - start_loading_from
+
+        if (progress)
+            for (var i = from; i < start_loading_from; i++)
+                progress(pairs[i].id, all_pairs_length, pairs[i])
         
         const onpair = pair => {
             pairs[pair.id] = pair
-            if (progress) progress(++progress_i, progress_end)
-            if (filename) {
-                var _
-                while (_ = pairs[next_pair_order]) {
-                    fs.appendFileSync(filename, `${_.id},${_.pair},${_.token0},${_.token1}\n`)
-                    next_pair_order++
-                }
+            if (progress) progress(pair.id, all_pairs_length, pair)
+            var _
+            while (_ = pairs[next_pair_order]) {
+                fs.appendFileSync(filename, `${_.id},${_.pair},${_.token0},${_.token1}\n`)
+                next_pair_order++
             }
         }
 
@@ -80,7 +87,6 @@ const load = (params = {}) => {
                 ids.push(i)
             return require('./loader')({ ids, factory, key, multicall_size }, onpair)
             .then(() => pairs)
-        
         }
 
         const missed = []

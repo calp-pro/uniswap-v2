@@ -18,16 +18,11 @@
 
 ## CLI
 ```bash
-npm i -g uniswap-v2-loader
-uniswap-v2-loader --help
-Options:
- 	--key
-	--factory
-	--filename
-	--multicall_size
-	--from
-	--to
-	--workers
+> npm i -g uniswap-v2-loader
+> uniswap-v2-loader --from=1 --to=3
+
+2,0x12ede161c702d1494612d19f05992f43aa6a26fb,0x06af07097c9eeb7fd685c692751d5c66db49c215,0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
+3,0xa478c2975ab1ea89e8196811f51a7b7ade33eb11,0x6b175474e89094c44da98b954eedeac495271d0f,0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2
 ```
 
 ## API Reference
