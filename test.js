@@ -7,9 +7,7 @@ const default_cache_filename = require('./default_cache_filename')
 describe('Uniswap V2', () => {
     const uniswap_v2_factory = '0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f'
     const uniswap_v2_cache_filename = default_cache_filename(uniswap_v2_factory)
-    
-    console.log('uniswap_v2_cache_filename', uniswap_v2_cache_filename)
-    
+
     before(() => {
         if (fs.existsSync(uniswap_v2_cache_filename))
             fs.unlinkSync(uniswap_v2_cache_filename)
