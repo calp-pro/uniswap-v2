@@ -101,7 +101,7 @@ const rl = require('readline')
 
 
 load({ 
-  factory: '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac', // SushiSwap
+  factory: '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac  ', // SushiSwap
   to: 1000, 
   progress: (c, t) => {
     rl.cursorTo(process.stdout, 0)
