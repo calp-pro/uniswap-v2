@@ -49,5 +49,3 @@ jobs:
     - name: Publish
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: npm publish --provenance --access public
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
