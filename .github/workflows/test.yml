@@ -51,5 +51,5 @@ jobs:
       run: |
         V=$(node -p "require('./package.json').version")
         if ! npm view uniswap-v2-loader@$V >/dev/null 2>&1; then
-          npm publish --provenance --access public
+          npm publish --provenance --access public --registry=https://registry.npmjs.org/
         fi
