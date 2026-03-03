@@ -10,6 +10,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
     - name: Checkout code
@@ -42,3 +45,11 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         file: lcov.info
+
+    - name: Publish
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        V=$(node -p "require('./package.json').version")
+        if ! npm view uniswap-v2-loader@$V >/dev/null 2>&1; then
+          npm publish --provenance --access public
+        fi

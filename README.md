@@ -49,9 +49,9 @@ High-performance parallel fetcher for liquidity pairs. Efficiently synchronizes 
 [
   {
     "id": 0,
-    "pair": "0xB4e16d0168e52d35CaCD2c6185b44281Ec28C9Dc",
-    "token0": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eb48",
-    "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
+    "pair": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+    "token0": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
   }
 ]
 ```
@@ -101,7 +101,7 @@ const rl = require('readline')
 
 
 load({ 
-  factory: '0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac', // SushiSwap
+  factory: '0xc0aee478e3658e2610c5f7a4a2e1777ce9e4f2ac', // SushiSwap
   to: 1000, 
   progress: (c, t) => {
     rl.cursorTo(process.stdout, 0)
