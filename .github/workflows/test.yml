@@ -7,11 +7,14 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-permissions:
-  id-token: write
 
 jobs:
   test:
+      
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC
+
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +25,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-        cache: 'npm'
 
     - name: Global install package CLI version
 
@@ -49,4 +51,4 @@ jobs:
 
     - name: Publish
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: npm publish --provenance --access public
+      run: npm publish
