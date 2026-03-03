@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  contents: read
   id-token: write
 
 jobs:
@@ -22,9 +23,10 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-        registry-url: 'https://registry.npmjs.org'
+        cache: 'npm'
 
     - name: Global install package CLI version
+
       run: npm i -g .
 
     - name: CLI Load first 4 pairs from Uniswap V2 using 2 workers
@@ -48,4 +50,4 @@ jobs:
 
     - name: Publish
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: npm publish --provenance --access public
+      run: npm publish --provenance
