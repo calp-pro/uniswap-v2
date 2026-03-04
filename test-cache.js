@@ -35,10 +35,13 @@ describe('Cache OS filename at win32', () => {
     })
 
     it('linux .cache', () => {
+        const exists_sync = fs.existsSync
+        fs.existsSync = p => p.endsWith('.cache')
         Object.defineProperty(process, 'platform', {value: 'linux', configurable: true})
         process.env.XDG_CACHE_HOME = ''
         const expected = path.join(os.homedir(), '.cache', `uniswap-v2-loader_${uniswap_v2_factory}.csv`)
         assert.equal(default_cache_filename(uniswap_v2_factory), expected)
+        fs.existsSync = exists_sync
     })
 
     it('os.tmpdir()', () => {
@@ -91,10 +94,13 @@ describe('Cache OS filename at linux', () => {
     })
     
     it('linux XDG_CACHE_HOME', () => {
+        const exists_sync = fs.existsSync
         const cache_dir = path.join(os.homedir(), '.cache')
+        fs.existsSync = p => p === cache_dir
         process.env.XDG_CACHE_HOME = cache_dir
         const expected = path.join(cache_dir, `uniswap-v2-loader_${uniswap_v2_factory}.csv`)
         assert.equal(default_cache_filename(uniswap_v2_factory), expected)
+        fs.existsSync = exists_sync
     })
     
     after(() => {
