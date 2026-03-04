@@ -26,7 +26,6 @@ const load = (params = {}) => {
         ? fs.readFileSync(filename).toString().trim().split('\n')
             .reduce((pairs, line) => {
                 line = line.split(',')
-                if (line[0] == '') return pairs
                 const id = +line[0]
                 if (id >= from && (to == undefined || id <= to)) pairs.push({
                     id,
