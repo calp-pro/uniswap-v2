@@ -41,6 +41,7 @@ High-performance parallel fetcher for liquidity pairs. Efficiently synchronizes 
 | `multicall_size` | `number` | RPC batch size per multicall request. | `50` |
 | `workers` | `number` | Number of parallel worker threads. | `CPU - 1` |
 | `progress` | `function` | Progress callback: `(current, total) => {}`. | `undefined` |
+| `abort_signal` | `AbortSignal` | Signal to cancel loading and release workers. | `undefined` |
 
 **Returns**: `Promise<Pair[]>`
 

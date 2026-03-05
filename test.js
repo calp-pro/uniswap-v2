@@ -61,14 +61,14 @@ describe('Uniswap V2', () => {
         // There are already 2 pools loaded from previous test
         // 6 - 2 = 4. Rest 4 will be loaded by 2 workers. Each load 2.
         // Multicall size is 2.
-        load({to: 6, multicall_size: 2, workers: 2 })
+        load({to: 6, multicall_size: 2, workers: 2})
         .then(pairs => {
             assert.equal(pairs.length, 6)
         })
     )
     
     it('No multi-core. Same process load +3 pairs', () =>
-        load({to: 6 + 3, workers: 0 })
+        load({to: 6 + 3, workers: 0})
         .then(pairs => {
             assert.equal(pairs.length, 9)
             assert.equal(pairs[8].pair, '0xb6909b960dbbe7392d405429eb2b3649752b4838', 'Brave token BAT to WETH')
@@ -90,6 +90,20 @@ describe('Uniswap V2', () => {
         })
         .then(() => {
             assert.equal(progress_call_count, 9)
+        })
+    })
+
+    it('Graceful shutdown after +1 pair loaded', () => {
+        const abort_controller = new AbortController()
+        const abort_signal = abort_controller.signal
+
+        load({
+            workers: 0,
+            progress: () => abort_controller.abort(),
+            abort_signal
+        })
+        .then(pairs => {
+            assert.ok(pairs.length)
         })
     })
 })

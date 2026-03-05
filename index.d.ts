@@ -36,6 +36,8 @@ export interface load_params {
   pairs?: pair[]
   /** Timeout between updates in milliseconds. */
   update_timeout?: number
+  /** Signal to abort the loading process. */
+  abort_signal?: AbortSignal
 }
 
 /**
