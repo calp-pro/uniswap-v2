@@ -1,4 +1,4 @@
 *.csv
 test*.js
-test.mjs
+test*.mjs
 lcov.info

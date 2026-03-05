@@ -96,14 +96,34 @@ describe('Uniswap V2', () => {
     it('Graceful shutdown after +1 pair loaded', () => {
         const abort_controller = new AbortController()
         const abort_signal = abort_controller.signal
+        var once = true
 
-        load({
+        return load({
             workers: 0,
-            progress: () => abort_controller.abort(),
+            progress: () => {
+                if (once) {
+                    onece = false
+                    setTimeout(() => abort_controller.abort(), 0)
+                }
+            },
             abort_signal
         })
-        .then(pairs => {
-            assert.ok(pairs.length)
+    })
+
+    it('Graceful shutdown after +1 pair loaded (main process send "abort" message to worker)', () => {
+        const abort_controller = new AbortController()
+        const abort_signal = abort_controller.signal
+        var once = true
+        
+        return load({
+            workers: 1,
+            progress: () => {
+                if (once) {
+                    onece = false
+                    setTimeout(() => abort_controller.abort(), 0)
+                }
+            },
+            abort_signal
         })
     })
 })

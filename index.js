@@ -99,14 +99,10 @@ const load = (params = {}) => {
             .then(() => pairs)
         }
 
-        const missed = []
-        for (var i = start_loading_from, ids; i < all_pairs_length; i++) {
-            if (!ids || ids.length % multicall_size == 0) {
-                ids = []
-                missed.push(ids)
-            }
-            ids.push(i)
-        }
+        const missed = Array(workers).fill(null).map(() => [])
+
+        for (var i = start_loading_from, iw = 0; i < all_pairs_length; i++)
+            missed[iw++ % workers].push(i)
         
         cluster.setupPrimary({ exec: path.join(__dirname, 'loader.js') })
         
@@ -114,11 +110,16 @@ const load = (params = {}) => {
             missed
             .filter(_ => _.length)
             .map((ids, i) => new Promise(y => {
+                if (abort_signal?.aborted) return y()
                 const w = cluster.fork()
-                abort_signal?.addEventListener('abort', () => w.send('abort'))
+                const onabort = () => w.send('abort')
+                abort_signal?.addEventListener('abort', onabort, { once: true })
                 w.send({ ids, factory, key, multicall_size })
                 w.on('message', onpair)
-                w.on('exit', y)
+                w.on('exit', () => {
+                    abort_signal?.removeEventListener('abort', onabort)
+                    y()
+                })
             }))
         ).then(() => pairs)
     })
