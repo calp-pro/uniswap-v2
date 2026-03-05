@@ -1,6 +1,7 @@
-const get_pairs_addresses = (key, factory, ids) => ids.length == 0
+const get_pairs_addresses = (key, factory, ids, abort_signal) => ids.length == 0
     ? Promise.resolve([])
     : fetch('https://eth-mainnet.g.alchemy.com/v2/' + key, {
+        signal: abort_signal,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ids.map((id, i) => ({
@@ -30,14 +31,15 @@ const get_pairs_addresses = (key, factory, ids) => ids.length == 0
         return failed_ids.length == 0
             ? addresses
             : new Promise(resolve => setTimeout(() => resolve(
-                get_pairs_addresses(key, factory, failed_ids).then(retried => [...addresses, ...retried])
+                get_pairs_addresses(key, factory, failed_ids, abort_signal).then(retried => [...addresses, ...retried])
             ), 10000))
     })
-    .catch(() => new Promise(resolve => setTimeout(() => resolve(get_pairs_addresses(key, factory, ids)), 10000)))
+    .catch(() => abort_signal?.aborted ? [] : new Promise(resolve => setTimeout(() => resolve(get_pairs_addresses(key, factory, ids, abort_signal)), 10000)))
 
-const get_tokens = (key, addresses) => addresses.length == 0
+const get_tokens = (key, addresses, abort_signal) => addresses.length == 0
     ? Promise.resolve({})
     : fetch('https://eth-mainnet.g.alchemy.com/v2/' + key, {
+        signal: abort_signal,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(addresses.flatMap((address, i) => [
@@ -83,20 +85,20 @@ const get_tokens = (key, addresses) => addresses.length == 0
         return failed_addresses.length == 0
             ? tokens
             : new Promise(resolve => setTimeout(() => resolve(
-                get_tokens(key, failed_addresses).then(retried => ({ ...tokens, ...retried }))
+                get_tokens(key, failed_addresses, abort_signal).then(retried => ({ ...tokens, ...retried }))
             ), 10000))
     })
-    .catch(() => new Promise(resolve => setTimeout(() => resolve(get_tokens(key, addresses)), 10000)))
+    .catch(() => abort_signal?.aborted ? {} : new Promise(resolve => setTimeout(() => resolve(get_tokens(key, addresses, abort_signal)), 10000)))
 
-const main = ({ids, factory, key, multicall_size}, onpair) => {
+const main = ({ids, factory, key, multicall_size, abort_signal}, onpair) => {
     const chunks = []
     for (let i = 0; i < ids.length; i += multicall_size)
         chunks.push(ids.slice(i, i + multicall_size))
 
     return chunks.reduce((p, ids, ic) =>
         p.then(() =>
-            get_pairs_addresses(key, factory, ids).then(pairs_addresses =>
-                get_tokens(key, pairs_addresses).then(tokens =>
+            get_pairs_addresses(key, factory, ids, abort_signal).then(pairs_addresses =>
+                get_tokens(key, pairs_addresses, abort_signal).then(tokens =>
                     ids.forEach((id, i) =>
                         onpair({
                             id,
@@ -113,12 +115,20 @@ const main = ({ids, factory, key, multicall_size}, onpair) => {
 }
 
 
-if (require.main != module)
+if (require.main != module) {
     module.exports = main
-else
+} else {
+    const abort_controller = new AbortController()
+    const abort_signal = abort_controller.signal
+
     process.on(
         'message',
-        message =>
-            main(message, pair => process.send(pair))
-            .then(() => process.exit())
+        message => {
+            if (message == 'abort')
+                abort_controller.abort()
+            else
+                main({...message, abort_signal}, pair => process.send(pair))
+                .finally(() => process.exit())
+        }
     )
+}

@@ -16,9 +16,11 @@ const load = (params = {}) => {
         from = 0,
         to,
         progress,
+        abort_signal,
         workers = max_workers,
         pairs,
     } = params
+
     filename ??= default_cache_filename(factory)
     workers = Math.min(workers, max_workers)
 
@@ -44,10 +46,11 @@ const load = (params = {}) => {
 
         return Promise.resolve(pairs.slice(0, to))
     }
-    
+
     return (to
         ? Promise.resolve(to)
         : fetch('https://eth-mainnet.g.alchemy.com/v2/' + key, {
+            signal: abort_signal,
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -92,7 +95,7 @@ const load = (params = {}) => {
             const ids = []
             for (var i = start_loading_from; i < all_pairs_length; i++)
                 ids.push(i)
-            return require('./loader')({ ids, factory, key, multicall_size }, onpair)
+            return require('./loader')({ ids, factory, key, multicall_size, abort_signal }, onpair)
             .then(() => pairs)
         }
 
@@ -112,13 +115,14 @@ const load = (params = {}) => {
             .filter(_ => _.length)
             .map((ids, i) => new Promise(y => {
                 const w = cluster.fork()
+                abort_signal?.addEventListener('abort', () => w.send('abort'))
                 w.send({ ids, factory, key, multicall_size })
                 w.on('message', onpair)
                 w.on('exit', y)
             }))
         ).then(() => pairs)
     })
-    .catch(() => new Promise(resolve => setTimeout(() => resolve(load(params)), 1000)))
+    .catch(() => abort_signal?.aborted ? pairs : new Promise(resolve => setTimeout(() => resolve(load(params)), 1000)))
 }
 
 module.exports.load = (params = {}) =>
