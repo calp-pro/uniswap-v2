@@ -37,7 +37,7 @@ High-performance parallel fetcher for liquidity pairs. Efficiently synchronizes 
 | `to` | `number` | End index (exclusive). Required for range loading. | `undefined` |
 | `filename` | `string` | Local CSV cache path. Supports OS-standard locations. | *Auto-detected* |
 | `factory` | `string` | Smart contract factory address. | `0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f` |
-| `key` | `string` | Alchemy/RPC API Key (priority over ENV). | `FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu` |
+| `key` | `string` | Alchemy API Key | `FZBvlPrOxtgaKBBkry3SH0W1IqH4Y5tu` |
 | `multicall_size` | `number` | RPC batch size per multicall request. | `50` |
 | `workers` | `number` | Number of parallel worker threads. | `CPU - 1` |
 | `progress` | `function` | Progress callback: `(current, total) => {}`. | `undefined` |
