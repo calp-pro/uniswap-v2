@@ -45,7 +45,7 @@ jobs:
         node --experimental-test-coverage --test \
           --test-reporter=spec --test-reporter-destination=stdout \
           --test-reporter=lcov --test-reporter-destination=lcov.info \
-          test*.js
+          test/test*.js
 
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@v2
