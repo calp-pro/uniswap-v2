@@ -96,13 +96,13 @@ Methods:
   * Type: `function`
   * Default: `undefined`
 - `abort_signal`
-* Signal to cancel loading and release workers.
-* Type: `AbortSignal`
-* Default: `undefined`
+  * Signal to cancel loading and release workers.
+  * Type: [`AbortSignal`](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal)
+  * Default: `undefined`
 - `update_timeout`
-* Polling interval in milliseconds. Used only in `subscribe`
-* Type: `number`
-* Default: `5000`
+  * Polling interval in milliseconds. Used only in `subscribe`
+  * Type: `number`
+  * Default: `5000`
 
 ### Schema `Pair`
 Standardized liquidity pool object.
